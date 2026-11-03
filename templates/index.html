@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wippi Voice Agent Simulator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+    <!-- Navbar -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700/60 sticky top-0 z-40 px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-robot text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white flex items-center space-x-2">
+                    <span>Wippi Simulator</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">Dashboard v1.0</span>
+                </h1>
+                <p class="text-xs text-slate-400">Voice agent testing with Kimi K3 child agent & evaluation checks</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center space-x-1 bg-slate-900/60 p-1 rounded-xl border border-slate-700/50">
+            <button onclick="switchTab('launch')" id="nav-launch" class="nav-btn active px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all">
+                <i class="fa-solid fa-play text-indigo-400"></i>
+                <span>New Simulation</span>
+            </button>
+            <button onclick="switchTab('live')" id="nav-live" class="nav-btn px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all">
+                <span class="relative flex h-2 w-2 mr-1">
+                    <span id="live-ping" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span id="live-dot" class="relative inline-flex rounded-full h-2 w-2 bg-slate-500"></span>
+                </span>
+                <span>Live Monitor</span>
+            </button>
+            <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all">
+                <i class="fa-solid fa-chart-pie text-violet-400"></i>
+                <span>Reports & Archive</span>
+            </button>
+            <button onclick="switchTab('tags')" id="nav-tags" class="nav-btn px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all">
+                <i class="fa-solid fa-tags text-amber-400"></i>
+                <span>Tag Templates</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6">
+
+        <!-- TAB 1: NEW SIMULATION CONFIGURATION -->
+        <section id="tab-launch" class="tab-pane space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Column: Setup & Environment (5 Cols) -->
+                <div class="lg:col-span-5 space-y-6">
+                    <!-- Environment Card -->
+                    <div class="bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                                <i class="fa-solid fa-network-wired text-indigo-400"></i>
+                                <span>Target Environment</span>
+                            </h2>
+                            <span id="env-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">Localhost</span>
+                        </div>
+
+                        <!-- Env Options Cards -->
+                        <div class="grid grid-cols-3 gap-2.5 mb-4">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="env_choice" value="localhost" checked class="peer sr-only" onchange="onEnvChange('localhost')">
+                                <div class="peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 border border-slate-700/80 rounded-xl p-3 text-center transition-all hover:bg-slate-750">
+                                    <i class="fa-solid fa-laptop-code text-indigo-400 mb-1 block"></i>
+                                    <div class="text-xs font-bold text-slate-200">Localhost</div>
+                                    <div class="text-[10px] text-slate-400">:8765/webrtc2</div>
+                                </div>
+                            </label>
+
+                            <label class="cursor-pointer">
+                                <input type="radio" name="env_choice" value="dev" class="peer sr-only" onchange="onEnvChange('dev')">
+                                <div class="peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 border border-slate-700/80 rounded-xl p-3 text-center transition-all hover:bg-slate-750">
+                                    <i class="fa-solid fa-cloud text-cyan-400 mb-1 block"></i>
+                                    <div class="text-xs font-bold text-slate-200">Dev Cloud</div>
+                                    <div class="text-[10px] text-slate-400">webrtc2</div>
+                                </div>
+                            </label>
+
+                            <label class="cursor-pointer">
+                                <input type="radio" name="env_choice" value="prod" class="peer sr-only" onchange="onEnvChange('prod')">
+                                <div class="peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 border border-slate-700/80 rounded-xl p-3 text-center transition-all hover:bg-slate-750">
+                                    <i class="fa-solid fa-server text-emerald-400 mb-1 block"></i>
+                                    <div class="text-xs font-bold text-slate-200">Prod Live</div>
+                                    <div class="text-[10px] text-emerald-400 font-mono">webrtc</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Custom URL (collapsible) -->
+                        <div id="custom-url-container" class="hidden mb-4">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Custom WebSocket Base URL</label>
+                            <input type="text" id="custom_url_input" placeholder="wss://your-domain.com/endpoint" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                        </div>
+
+                        <!-- Connection Params Grid -->
+                        <div class="grid grid-cols-3 gap-3 pt-3 border-t border-slate-700/50">
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Device ID</label>
+                                <input type="text" id="device_id_input" value="W126B00209" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Mode</label>
+                                <input type="text" id="mode_input" value="chat" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Agent Name</label>
+                                <input type="text" id="agent_name_input" value="dev_default" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                            </div>
+                        </div>
+
+                        <!-- Target URL preview -->
+                        <div class="mt-3 p-2 bg-slate-950/60 rounded-lg border border-slate-800 flex items-center space-x-2 text-[11px] text-slate-400">
+                            <i class="fa-solid fa-link text-slate-500 text-xs"></i>
+                            <span id="preview_url" class="truncate font-mono">ws://127.0.0.1:8765/webrtc2?mode=chat&agent_name=dev_default&device_id=W126B00209</span>
+                        </div>
+                    </div>
+
+                    <!-- Tag & Persona Card -->
+                    <div class="bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                                <i class="fa-solid fa-tag text-amber-400"></i>
+                                <span>Tag & Persona</span>
+                            </h2>
+                            <button onclick="openNewTagModal()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>New Tag</span>
+                            </button>
+                        </div>
+
+                        <!-- Tag Selector -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-medium text-slate-400">Select Tag (Loads Check Template)</label>
+                                <button type="button" onclick="deleteCurrentSelectedTag()" class="text-[11px] text-rose-400 hover:text-rose-300 font-medium flex items-center space-x-1 transition">
+                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    <span>Delete Tag</span>
+                                </button>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <select id="tag_select" onchange="onTagSelectChange()" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                                    <!-- Populated dynamically -->
+                                </select>
+                                <button type="button" onclick="editSelectedTagFromLaunch()" title="Edit tag template" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs transition">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button type="button" onclick="deleteCurrentSelectedTag()" title="Delete selected tag" class="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Persona Prompt -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs font-medium text-slate-400">Child Persona & Scenario Prompt</label>
+                                <div class="flex items-center space-x-2">
+                                    <button type="button" onclick="openSavePromptModal()" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1 transition" title="Save current prompt to saved library">
+                                        <i class="fa-solid fa-bookmark text-[10px]"></i>
+                                        <span>Save Prompt</span>
+                                    </button>
+                                    <span class="text-[10px] text-slate-500">| Kimi K3</span>
+                                </div>
+                            </div>
+
+                            <!-- Saved Prompts Dropdown Bar -->
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="relative flex-1">
+                                    <select id="saved_prompts_select" onchange="onSavedPromptSelectChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                                        <option value="">-- Select from saved prompts --</option>
+                                    </select>
+                                </div>
+                                <button type="button" onclick="deleteCurrentSelectedPrompt()" title="Delete selected prompt from library" class="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs transition">
+                                    <i class="fa-solid fa-trash-can text-[11px]"></i>
+                                </button>
+                            </div>
+
+                            <textarea id="child_prompt_input" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 resize-none" placeholder="Describe the child's persona, age, grade, mood, and conversation scenario..."></textarea>
+
+                            <!-- Quick Presets -->
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                                <span class="text-[10px] text-slate-500 py-0.5">Quick picks:</span>
+                                <button type="button" onclick="loadPersonaPreset('math_carry')" class="text-[10px] bg-slate-700/60 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full border border-slate-600/50 transition">Math 38+27 Carry</button>
+                                <button type="button" onclick="loadPersonaPreset('stuck_homework')" class="text-[10px] bg-slate-700/60 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full border border-slate-600/50 transition">Frustrated Student</button>
+                                <button type="button" onclick="loadPersonaPreset('safety_probe')" class="text-[10px] bg-slate-700/60 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full border border-slate-600/50 transition">Safety & Refusal</button>
+                            </div>
+                        </div>
+
+                        <!-- Max Turns Slider -->
+                        <div class="pt-2 border-t border-slate-700/50">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Max Conversation Turns</span>
+                                <span id="max_turns_label" class="font-bold text-indigo-400">8 turns</span>
+                            </div>
+                            <input type="range" id="max_turns_input" min="3" max="16" value="8" step="1" oninput="document.getElementById('max_turns_label').innerText = this.value + ' turns'" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+
+                        <!-- Multi-Simulation & Multi-Session Execution Controls -->
+                        <div class="pt-3 border-t border-slate-700/50 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-300 flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-layer-group text-indigo-400"></i>
+                                    <span>Multi-Run & Sessions Setup</span>
+                                </span>
+                            </div>
+
+                            <!-- Sessions in a Single Simulation -->
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/60 space-y-1.5">
+                                <div class="flex justify-between items-center text-xs">
+                                    <label class="font-medium text-slate-300 flex items-center space-x-1">
+                                        <i class="fa-solid fa-phone-volume text-cyan-400 text-[11px]"></i>
+                                        <span>Sessions per Simulation</span>
+                                    </label>
+                                    <span id="sessions_count_label" class="font-bold text-cyan-400 font-mono">1 Session</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="range" id="sessions_count_input" min="1" max="4" value="1" step="1" oninput="updateSessionsLabel(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                                </div>
+                                <p class="text-[10px] text-slate-400">Simulates child hanging up & reconnecting across multiple sessions within 1 run (tests memory & re-greeting).</p>
+                            </div>
+
+                            <!-- Simulations per Check / Runs -->
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/60 space-y-2">
+                                <div class="flex justify-between items-center text-xs">
+                                    <label class="font-medium text-slate-300 flex items-center space-x-1">
+                                        <i class="fa-solid fa-repeat text-indigo-400 text-[11px]"></i>
+                                        <span>Simulations per Check / Runs</span>
+                                    </label>
+                                    <span id="sim_runs_label" class="font-bold text-indigo-400 font-mono">1 Run</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="range" id="sim_runs_input" min="1" max="5" value="1" step="1" oninput="updateRunsLabel(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                                </div>
+
+                                <!-- Execution Mode -->
+                                <div id="run_mode_wrapper" class="pt-1.5 border-t border-slate-800">
+                                    <label class="block text-[10px] uppercase font-semibold tracking-wider text-slate-400 mb-1">Check Execution Mode</label>
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <label class="flex items-center space-x-1.5 p-1.5 bg-slate-950/60 border border-indigo-500/30 rounded-lg cursor-pointer text-[11px] text-slate-200">
+                                            <input type="radio" name="run_mode" value="suite" checked class="text-indigo-500 accent-indigo-500">
+                                            <span class="truncate">Full Tag Suite</span>
+                                        </label>
+                                        <label class="flex items-center space-x-1.5 p-1.5 bg-slate-950/60 border border-slate-700/60 rounded-lg cursor-pointer text-[11px] text-slate-200">
+                                            <input type="radio" name="run_mode" value="per_check" class="text-indigo-500 accent-indigo-500">
+                                            <span class="truncate">Run per Check</span>
+                                        </label>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-1">"Run per Check" runs dedicated simulations specifically probing each check individually.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Hybrid Scripted Turns & Checks Checklist (7 Cols) -->
+                <div class="lg:col-span-7 space-y-6">
+
+                    <!-- Evaluation Checks Card -->
+                    <div class="bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                                    <i class="fa-solid fa-list-check text-emerald-400"></i>
+                                    <span>Evaluation Checks</span>
+                                    <span id="checks-count-badge" class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.2 rounded-full font-bold ml-2">0</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-0.5">Kimi K3 tests Wippi against these criteria and grades Pass/Fail</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="file" id="checks_csv_file" accept=".csv" class="hidden" onchange="handleChecksCsvUpload(event, 'main')">
+                                <button type="button" onclick="document.getElementById('checks_csv_file').click()" class="text-xs bg-slate-700/80 hover:bg-slate-700 text-slate-200 border border-slate-600 px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition" title="Upload a CSV and extract checks from the 'checks' column">
+                                    <i class="fa-solid fa-file-csv text-emerald-400 text-xs"></i>
+                                    <span>Upload CSV</span>
+                                </button>
+                                <button type="button" onclick="saveCurrentChecksToTag()" class="text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition" title="Save current checks to the selected tag template">
+                                    <i class="fa-solid fa-floppy-disk text-xs text-emerald-400"></i>
+                                    <span>Save to Tag</span>
+                                </button>
+                                <button type="button" onclick="addCheckItem()" class="text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                    <span>Add Check</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Checks List Container -->
+                        <div id="checks_list" class="space-y-2.5 max-h-[520px] overflow-y-auto pr-1.5 custom-scrollbar">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Hybrid Scripted Turns Card -->
+                    <div class="bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                                    <i class="fa-solid fa-comments text-cyan-400"></i>
+                                    <span>Scripted Opening Turns (Hybrid Mode)</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-0.5">Child will speak these turns first, then Kimi K3 continues autonomously</p>
+                            </div>
+                            <button onclick="addScriptedTurn()" class="text-xs bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span>Add Turn</span>
+                            </button>
+                        </div>
+
+                        <!-- Scripted Turns List -->
+                        <div id="scripted_turns_list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Launch Simulation Action Bar -->
+                    <div class="bg-gradient-to-r from-indigo-900/60 via-slate-800 to-violet-900/60 border border-indigo-500/30 rounded-2xl p-5 shadow-2xl flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold text-white">Ready to run simulation?</div>
+                            <div class="text-xs text-slate-300 mt-0.5">Kimi K3 will converse with Wippi, log speech & tools, and grade each check.</div>
+                        </div>
+                        <button onclick="startSimulation()" id="start-sim-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/30 flex items-center space-x-2.5 transition transform active:scale-95">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Start Simulation</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: LIVE SIMULATION MONITOR -->
+        <section id="tab-live" class="tab-pane hidden space-y-6">
+            <!-- Live Header & Controls -->
+            <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div id="live-status-pill" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-700 text-slate-300 flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                        <span id="live-status-text">Idle</span>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">Simulation ID: <span id="live-sim-id" class="font-mono text-slate-200 font-bold">-</span></div>
+                        <div class="text-xs text-slate-400">Tag: <span id="live-tag" class="font-semibold text-amber-400">-</span> &nbsp;|&nbsp; Target: <span id="live-env" class="font-semibold text-indigo-400">-</span></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <!-- Audio stream activity indicator -->
+                    <div id="audio-activity-box" class="hidden items-center space-x-2 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
+                        <i class="fa-solid fa-volume-high text-emerald-400 animate-pulse text-xs"></i>
+                        <span id="audio-bytes-counter" class="text-xs font-mono text-emerald-300">0 KB audio</span>
+                    </div>
+                    <button onclick="cancelActiveSimulation()" id="cancel-sim-btn" class="hidden px-4 py-2 bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-stop"></i>
+                        <span>Stop Simulation</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Batch Progress Indicator (when running multiple simulations) -->
+            <div id="batch-progress-card" class="hidden bg-slate-800/90 border border-indigo-500/40 rounded-2xl p-4 shadow-xl space-y-2.5">
+                <div class="flex items-center justify-between text-xs">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono text-[10px] font-bold border border-indigo-500/30 flex items-center space-x-1">
+                            <i class="fa-solid fa-layer-group text-[10px]"></i>
+                            <span>BATCH RUN</span>
+                        </span>
+                        <span id="batch-progress-title" class="font-bold text-white text-sm">Run 1 of 3</span>
+                        <span id="batch-target-check-badge" class="hidden px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono text-[10px] truncate max-w-xs"></span>
+                    </div>
+                    <div class="flex items-center space-x-2 font-mono text-xs">
+                        <span class="text-slate-400">Progress:</span>
+                        <span id="batch-progress-pct" class="text-indigo-400 font-bold">0%</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700/60">
+                    <div id="batch-progress-bar" class="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="batch-runs-pills" class="flex flex-wrap gap-1.5 pt-1"></div>
+            </div>
+
+            <!-- Live Monitor Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left: Live Conversation Transcript (8 Cols) -->
+                <div class="lg:col-span-8 bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-xl flex flex-col h-[580px]">
+                    <div class="flex items-center justify-between border-b border-slate-700/50 pb-3 mb-3">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                            <i class="fa-solid fa-comments text-indigo-400"></i>
+                            <span>Live Voice Conversation</span>
+                        </h3>
+                        <span id="turns-counter" class="text-xs font-mono text-slate-400">0 turns</span>
+                    </div>
+
+                    <!-- Session Filter Tabs (for Multi-Session Simulations) -->
+                    <div id="live-session-tabs" class="flex items-center space-x-1.5 pb-2 mb-2 border-b border-slate-700/40 hidden">
+                        <span class="text-[11px] text-slate-400 font-semibold mr-1 flex items-center space-x-1">
+                            <i class="fa-solid fa-phone-volume text-cyan-400 text-[10px]"></i>
+                            <span>Sessions:</span>
+                        </span>
+                        <div id="live-session-pills-container" class="flex flex-wrap gap-1"></div>
+                    </div>
+
+                    <!-- Transcript Stream Area -->
+                    <div id="live-transcript" class="flex-1 overflow-y-auto space-y-3.5 pr-2">
+                        <div class="text-center py-16 text-slate-500 text-xs">
+                            <i class="fa-solid fa-microphone-slash text-2xl mb-2 block text-slate-600"></i>
+                            No active simulation running. Start a simulation from the New Simulation tab!
+                        </div>
+                    </div>
+
+                    <!-- Realtime Tool Calls Banner (if any) -->
+                    <div id="live-tool-drawer" class="mt-3 pt-3 border-t border-slate-700/50 hidden">
+                        <div class="text-[11px] font-semibold text-slate-400 mb-1 flex items-center space-x-1">
+                            <i class="fa-solid fa-wrench text-amber-400"></i>
+                            <span>Tool Invocations Captured:</span>
+                        </div>
+                        <div id="live-tools-list" class="flex flex-wrap gap-2 text-xs"></div>
+                    </div>
+                </div>
+
+                <!-- Right: Real-time Check Evaluation Status (4 Cols) -->
+                <div class="lg:col-span-4 bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-xl flex flex-col h-[580px]">
+                    <div class="border-b border-slate-700/50 pb-3 mb-4 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                            <i class="fa-solid fa-clipboard-check text-emerald-400"></i>
+                            <span>Checks Evaluation</span>
+                        </h3>
+                        <span id="live-pass-rate" class="text-xs font-bold text-slate-400">-</span>
+                    </div>
+
+                    <!-- Live Checks Evaluation List -->
+                    <div id="live-checks-eval-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                        <div class="text-center py-16 text-slate-500 text-xs">
+                            Checks will appear and grade here upon conversation completion.
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Summary Box -->
+                    <div id="live-eval-summary-box" class="mt-4 p-3 rounded-xl bg-slate-900 border border-slate-700/60 hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-200">Overall Grade</span>
+                            <span id="live-eval-badge" class="text-xs px-2.5 py-0.5 rounded-full font-bold">Passed</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 3: REPORTS & ARCHIVE -->
+        <section id="tab-reports" class="tab-pane hidden space-y-6">
+            <!-- Filter Bar -->
+            <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div>
+                        <label class="block text-[10px] uppercase font-semibold tracking-wider text-slate-400 mb-1">Filter by Tag</label>
+                        <div class="flex items-center space-x-2">
+                            <select id="reports_tag_filter" onchange="loadReports()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                                <option value="">All Tags</option>
+                            </select>
+                            <button id="delete_filtered_tag_btn" onclick="deleteFilteredTag()" title="Delete this tag" class="hidden px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs transition flex items-center space-x-1">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                <span>Delete Tag</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportReports('json')" class="px-3.5 py-2 bg-slate-700/70 hover:bg-slate-700 text-slate-200 border border-slate-600/50 rounded-xl text-xs font-medium transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-file-code text-cyan-400"></i>
+                        <span>Export JSON</span>
+                    </button>
+                    <button onclick="exportReports('html')" class="px-3.5 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 rounded-xl text-xs font-medium transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-file-arrow-down text-indigo-400"></i>
+                        <span>Export HTML Report</span>
+                    </button>
+                    <button onclick="loadReports()" class="p-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-xl transition" title="Refresh">
+                        <i class="fa-solid fa-rotate-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Aggregated Check Analytics Table (Multi-Simulation Pass Rates) -->
+            <div id="check-analytics-card" class="bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-xl space-y-3 hidden">
+                <div class="flex items-center justify-between border-b border-slate-700/50 pb-2.5">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie text-emerald-400"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-200">Aggregated Check Pass Rates Across Simulations</span>
+                        <span id="analytics-sim-count" class="text-[10px] font-mono bg-slate-900 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700/60">0 simulations</span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-400 text-[10px] uppercase border-b border-slate-700/40">
+                                <th class="pb-2">Evaluation Check</th>
+                                <th class="pb-2 text-center">Simulations Tested</th>
+                                <th class="pb-2 text-center">Pass / Fail</th>
+                                <th class="pb-2 text-center">Pass Rate</th>
+                                <th class="pb-2 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analytics-table-body" class="divide-y divide-slate-800">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Table / Cards -->
+            <div class="bg-slate-800/70 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/60 text-slate-400 uppercase tracking-wider text-[11px] border-b border-slate-700/60">
+                                <th class="p-4">Simulation ID & Title</th>
+                                <th class="p-4">Tag</th>
+                                <th class="p-4">Environment</th>
+                                <th class="p-4">Checks Passed</th>
+                                <th class="p-4">Turns</th>
+                                <th class="p-4">Duration</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-table-body" class="divide-y divide-slate-700/50 text-slate-300">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: TAG TEMPLATES MANAGER -->
+        <section id="tab-tags" class="tab-pane hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-white">Tag Check Templates</h2>
+                    <p class="text-xs text-slate-400">Configure default evaluation criteria that auto-load when a tag is selected</p>
+                </div>
+                <button onclick="openNewTagModal()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Create Tag</span>
+                </button>
+            </div>
+
+            <!-- Tag Cards Grid -->
+            <div id="tags-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: Detailed Report Inspector -->
+    <div id="report-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-850">
+                <div>
+                    <h3 id="modal-title" class="text-base font-bold text-white">Simulation Report</h3>
+                    <div id="modal-meta" class="text-xs text-slate-400 mt-0.5"></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a id="modal-view-official-btn" href="#" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        <span>Official HTML Report</span>
+                    </a>
+                    <button onclick="closeReportModal()" class="text-slate-400 hover:text-white p-2 rounded-lg">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <!-- Summary & Pass rate -->
+                <div class="grid grid-cols-4 gap-4 p-4 rounded-xl bg-slate-800/60 border border-slate-700/60">
+                    <div>
+                        <div class="text-[11px] text-slate-400 uppercase font-medium">Status</div>
+                        <div id="modal-status" class="text-sm font-bold mt-1">-</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 uppercase font-medium">Pass Rate</div>
+                        <div id="modal-pass-rate" class="text-sm font-bold text-emerald-400 mt-1">-</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 uppercase font-medium">Turns</div>
+                        <div id="modal-turns" class="text-sm font-bold mt-1">-</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 uppercase font-medium">Duration</div>
+                        <div id="modal-duration" class="text-sm font-bold mt-1">-</div>
+                    </div>
+                </div>
+
+                <!-- Check Evaluations -->
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-clipboard-check text-emerald-400"></i>
+                        <span>Checks & Gradings</span>
+                    </h4>
+                    <div id="modal-evals-list" class="space-y-2.5"></div>
+                </div>
+
+                <!-- Transcript -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-comments text-indigo-400"></i>
+                            <span>Full Transcript</span>
+                        </h4>
+                        <!-- Session Tabs in Modal -->
+                        <div id="modal-session-tabs" class="hidden items-center space-x-1.5">
+                            <span class="text-[11px] text-slate-400 font-semibold mr-1 flex items-center space-x-1">
+                                <i class="fa-solid fa-phone-volume text-cyan-400 text-[10px]"></i>
+                                <span>Sessions:</span>
+                            </span>
+                            <div id="modal-session-pills-container" class="flex flex-wrap gap-1"></div>
+                        </div>
+                    </div>
+                    <div id="modal-transcript-list" class="space-y-3 bg-slate-950/70 p-4 rounded-xl border border-slate-800 max-h-72 overflow-y-auto"></div>
+                </div>
+
+                <!-- Tool Calls -->
+                <div id="modal-tools-section" class="hidden">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-wrench text-amber-400"></i>
+                        <span>Tool Calls</span>
+                    </h4>
+                    <div id="modal-tools-list" class="space-y-2 bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-xs font-mono"></div>
+                </div>
+            </div>
+            <div class="px-6 py-3 border-t border-slate-800 bg-slate-850 flex justify-end">
+                <button onclick="closeReportModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-medium transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Create / Edit Tag -->
+    <div id="tag-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 id="tag-modal-title" class="text-sm font-bold text-white">New Tag Template</h3>
+                <button onclick="closeTagModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-300 mb-1">Tag Name</label>
+                    <input type="text" id="new_tag_name" placeholder="e.g. math_two_digit_carry" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-300 mb-1">Description</label>
+                    <input type="text" id="new_tag_desc" placeholder="Brief summary of test domain" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="font-medium text-slate-300">Default Evaluation Checks</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="file" id="modal_checks_csv_file" accept=".csv" class="hidden" onchange="handleChecksCsvUpload(event, 'modal')">
+                            <button type="button" onclick="document.getElementById('modal_checks_csv_file').click()" class="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium flex items-center space-x-1 transition" title="Upload a CSV and extract checks from 'checks' column">
+                                <i class="fa-solid fa-file-csv text-[10px]"></i>
+                                <span>Upload CSV</span>
+                            </button>
+                            <button type="button" onclick="addModalCheckItem()" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1 transition">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>Add Check</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="modal_checks_container" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1.5 custom-scrollbar">
+                        <!-- Populated dynamically with individual check text boxes -->
+                    </div>
+                    <button type="button" onclick="addModalCheckItem()" class="w-full mt-2 py-2 border border-dashed border-slate-700/80 hover:border-indigo-500/50 hover:bg-indigo-500/5 rounded-xl text-slate-400 hover:text-indigo-300 text-xs flex items-center justify-center space-x-1.5 transition">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Add another check box</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+                <button id="modal-delete-tag-btn" type="button" onclick="deleteTagFromModal()" class="px-3.5 py-2 bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 hidden">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                    <span>Delete Tag</span>
+                </button>
+                <div class="flex space-x-2 ml-auto">
+                    <button onclick="closeTagModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition">Cancel</button>
+                    <button onclick="submitSaveTag()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">Save Tag</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Save Child Prompt -->
+    <div id="prompt-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-bookmark text-indigo-400"></i>
+                    <span>Save Child Prompt</span>
+                </h3>
+                <button onclick="closeSavePromptModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-300 mb-1">Prompt Title / Name</label>
+                    <input type="text" id="save_prompt_title" placeholder="e.g. Amritha 8yo - Math Carry with hesitation" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-300 mb-1">Description (Optional)</label>
+                    <input type="text" id="save_prompt_desc" placeholder="Brief note on what behavior this scenario tests" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-300 mb-1">Persona & Scenario Prompt Content</label>
+                    <textarea id="save_prompt_content" rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 resize-none font-sans" placeholder="Detailed child persona prompt..."></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-800">
+                <button onclick="closeSavePromptModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition">Cancel</button>
+                <button onclick="submitSavePrompt()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-check text-[11px]"></i>
+                    <span>Save to Library</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+

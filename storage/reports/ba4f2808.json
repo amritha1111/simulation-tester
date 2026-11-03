@@ -1,0 +1,55 @@
+{
+  "id": "ba4f2808",
+  "title": "Test Math Homework Run",
+  "tag": "homework_v0",
+  "environment": "localhost",
+  "url": "ws://127.0.0.1:8765/webrtc2?mode=homework&agent_name=dev_default&device_id=W126B00209",
+  "device_id": "W126B00209",
+  "mode": "homework",
+  "agent_name": "dev_default",
+  "status": "completed",
+  "error": null,
+  "created_at": "2026-11-02T09:10:42.352524Z",
+  "duration_seconds": 5.5,
+  "child_prompt": "You are Leo, an 8-year-old student doing math homework. You are working on 38 + 27.",
+  "checks": [
+    "Wippi speaks to the child with a friendly or encouraging tone",
+    "Wippi helps or responds to the child's homework problem"
+  ],
+  "evaluations": [
+    {
+      "check": "Wippi speaks to the child with a friendly or encouraging tone",
+      "status": "FAILED",
+      "score": 1,
+      "evidence": "Wippi (Turn 1): [No verbal response recorded]",
+      "reason": "Wippi provided no verbal response, therefore it could not demonstrate a friendly or encouraging tone to the child."
+    },
+    {
+      "check": "Wippi helps or responds to the child's homework problem",
+      "status": "FAILED",
+      "score": 1,
+      "evidence": "Wippi (Turn 1): [No verbal response recorded]",
+      "reason": "Wippi failed to provide any response to the child's math homework question, thus not helping or responding to the problem."
+    }
+  ],
+  "pass_count": 0,
+  "total_checks": 2,
+  "pass_rate": 0.0,
+  "total_turns": 2,
+  "transcript": [
+    {
+      "turn": 0,
+      "speaker": "Child",
+      "text": "Hi Wippi! Can you help me with my math homework? What is 38 plus 27?",
+      "source": "scripted",
+      "timestamp": "2026-11-02T09:10:37.795811Z"
+    },
+    {
+      "turn": 1,
+      "speaker": "Wippi",
+      "text": "[No verbal response recorded]",
+      "timestamp": "2026-11-02T09:10:37.860596Z"
+    }
+  ],
+  "tool_calls": []
+}

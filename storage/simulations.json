@@ -1,0 +1,60 @@
+[
+  {
+    "id": "66185be5",
+    "title": "hero quest Simulation",
+    "tag": "hero_quest",
+    "environment": "dev",
+    "status": "completed",
+    "pass_count": 17,
+    "total_checks": 28,
+    "total_turns": 8,
+    "sessions_count": 2,
+    "targeted_check": null,
+    "batch_id": null,
+    "batch_index": 1,
+    "batch_total": 1,
+    "created_at": "2026-11-03T10:30:14.204608Z",
+    "duration_seconds": 26.9
+  },
+  {
+    "id": "a34d1387",
+    "title": "hero quest Simulation",
+    "tag": "hero_quest",
+    "environment": "dev",
+    "status": "completed",
+    "pass_count": 0,
+    "total_checks": 28,
+    "total_turns": 8,
+    "sessions_count": 2,
+    "targeted_check": null,
+    "batch_id": null,
+    "batch_index": 1,
+    "batch_total": 1,
+    "created_at": "2026-11-03T10:14:18.552669Z",
+    "duration_seconds": 24.4
+  },
+  {
+    "id": "2d31d0c1",
+    "title": "Kimi K3 Math Simulation",
+    "tag": "homework_v0",
+    "environment": "localhost",
+    "status": "completed",
+    "pass_count": 0,
+    "total_checks": 2,
+    "total_turns": 2,
+    "created_at": "2026-11-03T07:45:42.621507Z",
+    "duration_seconds": 11.3
+  },
+  {
+    "id": "ba4f2808",
+    "title": "Test Math Homework Run",
+    "tag": "homework_v0",
+    "environment": "localhost",
+    "status": "completed",
+    "pass_count": 0,
+    "total_checks": 2,
+    "total_turns": 2,
+    "created_at": "2026-11-02T09:10:42.352524Z",
+    "duration_seconds": 5.5
+  }
+]
